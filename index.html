@@ -41,8 +41,12 @@
                     <input type="password" id="password" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition" placeholder="••••••••">
                 </div>
 
-                <button id="auth-button" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-200 transition-all active:transform active:scale-[0.98]">
-                    ログイン
+                <button id="auth-button" onclick="login()" class="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-200 transition-all active:transform active:scale-[0.98]">
+                    <svg id="loading-spinner" class="hidden animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span id="auth-button-text">ログイン</span>
                 </button>
 
                 <p class="text-center text-sm text-slate-500 mt-4">
@@ -55,7 +59,6 @@
 
     <div id="chat-view" class="hidden flex-grow flex flex-col max-w-4xl mx-auto w-full p-4">
         <div class="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden border border-slate-200 h-full max-h-[90vh]">
-            
             <div class="px-6 py-4 border-b border-slate-100 bg-white flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">CH</div>
@@ -70,7 +73,7 @@
             </div>
 
             <div id="chat-box" class="flex-grow overflow-y-auto p-6 space-y-4 bg-slate-50">
-                </div>
+            </div>
 
             <div class="p-4 border-t border-slate-100 bg-white">
                 <div class="flex gap-2">
@@ -105,15 +108,37 @@
             document.getElementById('auth-error').classList.add('hidden');
         }
 
+        // 新規追加：ロード中の状態を切り替える関数
+        function setLoading(isLoading) {
+            const button = document.getElementById('auth-button');
+            const spinner = document.getElementById('loading-spinner');
+            const buttonText = document.getElementById('auth-button-text');
+
+            if (isLoading) {
+                // ロード中の状態
+                button.disabled = true; // ボタンを押せなくする
+                button.classList.add('opacity-70', 'cursor-not-allowed'); // 少し透明にして押せない見た目にする
+                spinner.classList.remove('hidden'); // ぐるぐるを表示
+                buttonText.innerText = '処理中...';
+            } else {
+                // 元に戻す
+                button.disabled = false;
+                button.classList.remove('opacity-70', 'cursor-not-allowed');
+                spinner.classList.add('hidden');
+                buttonText.innerText = isLoginMode ? 'ログイン' : 'アカウント作成';
+            }
+        }
+
         // モード切り替え（ログイン ↔ 新規登録）
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
-            hideError(); // 切り替え時にエラーを消す
+            hideError(); 
 
             const title = document.getElementById('auth-title');
             const subtitle = document.getElementById('auth-subtitle');
             const nameField = document.getElementById('name-field');
             const authButton = document.getElementById('auth-button');
+            const authButtonText = document.getElementById('auth-button-text'); // 変更
             const toggleText = document.getElementById('toggle-text');
             const toggleLink = document.getElementById('toggle-link');
 
@@ -121,7 +146,7 @@
                 title.innerText = 'Welcome Back';
                 subtitle.innerText = 'ポートフォリオチャットへようこそ';
                 nameField.classList.add('hidden');
-                authButton.innerText = 'ログイン';
+                authButtonText.innerText = 'ログイン'; // 変更：spanの中身だけ書き換える
                 authButton.onclick = login;
                 toggleText.innerText = 'アカウントをお持ちでないですか？';
                 toggleLink.innerText = '新規登録';
@@ -129,7 +154,7 @@
                 title.innerText = 'Create Account';
                 subtitle.innerText = '新しくアカウントを作成します';
                 nameField.classList.remove('hidden');
-                authButton.innerText = 'アカウント作成';
+                authButtonText.innerText = 'アカウント作成'; // 変更：spanの中身だけ書き換える
                 authButton.onclick = register;
                 toggleText.innerText = '既にアカウントをお持ちですか？';
                 toggleLink.innerText = 'ログイン';
@@ -147,6 +172,8 @@
                 return showError('すべての項目を入力してください');
             }
 
+            setLoading(true); // 通信開始時にロード状態にする
+
             try {
                 const res = await fetch(`${API_URL}/users`, {
                     method: 'POST',
@@ -163,6 +190,8 @@
                 }
             } catch (e) {
                 showError('サーバーに接続できません');
+            } finally {
+                setLoading(false); // 成功しても失敗しても、通信が終わったらロード状態を解除する
             }
         }
 
@@ -175,6 +204,8 @@
             if (!email || !password) {
                 return showError('メールアドレスとパスワードを入力してください');
             }
+
+            setLoading(true); // 通信開始時にロード状態にする
 
             try {
                 const res = await fetch(`${API_URL}/auth/login`, {
@@ -192,6 +223,8 @@
                 }
             } catch (e) {
                 showError('サーバーに接続できません');
+            } finally {
+                setLoading(false); // 成功しても失敗しても、通信が終わったらロード状態を解除する
             }
         }
 
