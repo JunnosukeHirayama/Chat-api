@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id       Int      @id @default(autoincrement()) // 自動で増えるID
+  email    String   @unique                       // 重複禁止のメールアドレス
+  password String                                 // パスワード
+  name     String?                               // 名前（?は空でもOKの意味）
+  messages Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String   // メッセージの本文
+  createdAt DateTime @default(now()) // 送信された日時（自動保存）
+  
+  // 誰が送信したメッセージかを記録するための紐付け設定
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
