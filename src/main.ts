@@ -1,4 +1,5 @@
-import 'dotenv/config'; // 1番上
+import * as dotenv from 'dotenv';
+dotenv.config();
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -6,7 +7,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
-  // CORSを有効化（スペルミスを修正しました：enableCros -> enableCors）
+  // CORSを有効化
   app.enableCors();
 
   app.useGlobalPipes(

@@ -43,7 +43,7 @@ export class ChatGateway implements OnGatewayConnection {
       const { token, content, recipientId } = body; 
       
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET,
+        secret: process.env.JWT_SECRET ?? 'secretKey',
       });
       const senderId = payload.sub;
 
@@ -73,7 +73,7 @@ export class ChatGateway implements OnGatewayConnection {
   ) {
     try {
       const payload = await this.jwtService.verifyAsync(data.token, {
-        secret: process.env.JWT_SECRET,
+        secret: process.env.JWT_SECRET ?? 'secretKey',
       });
       const userId = payload.sub;
 

@@ -9,29 +9,28 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         #chat-box { scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
 
     <div id="auth-view" class="flex-grow flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
-            
             <div class="text-center mb-8">
                 <h1 id="auth-title" class="text-3xl font-bold text-slate-800">Welcome Back</h1>
                 <p id="auth-subtitle" class="text-slate-500 mt-2 text-sm">チャットへようこそ</p>
             </div>
-
-            <div id="auth-error" class="hidden bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-xs font-semibold mb-6 transition-all">
-                </div>
-
+            <div id="auth-error" class="hidden bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-xs font-semibold mb-6"></div>
+            
             <div class="space-y-4">
                 <div id="name-field" class="hidden">
                     <label class="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
                     <input type="text" id="reg-name" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition" placeholder="ユーザーネーム">
                 </div>
-
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1">Email</label>
                     <input type="email" id="email" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition" placeholder="email@example.com">
@@ -40,15 +39,9 @@
                     <label class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
                     <input type="password" id="password" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition" placeholder="••••••••">
                 </div>
-
-                <button id="auth-button" onclick="login()" class="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-200 transition-all active:transform active:scale-[0.98]">
-                    <svg id="loading-spinner" class="hidden animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                <button id="auth-button" onclick="login()" class="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-200 transition-all active:scale-[0.98]">
                     <span id="auth-button-text">ログイン</span>
                 </button>
-
                 <p class="text-center text-sm text-slate-500 mt-4">
                     <span id="toggle-text">アカウントをお持ちでないですか？</span>
                     <a href="javascript:void(0)" onclick="toggleAuthMode()" id="toggle-link" class="text-blue-600 font-bold hover:underline ml-1">新規登録</a>
@@ -57,236 +50,231 @@
         </div>
     </div>
 
-    <div id="chat-view" class="hidden flex-grow flex flex-col max-w-4xl mx-auto w-full p-4">
-        <div class="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden border border-slate-200 h-full max-h-[90vh]">
-            <div class="px-6 py-4 border-b border-slate-100 bg-white flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">CH</div>
-                    <div>
-                        <h2 class="font-bold text-slate-800 text-sm md:text-base">Chat Room</h2>
-                        <p class="text-[10px] text-green-500 flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Online
-                        </p>
-                    </div>
-                </div>
-                <button onclick="logout()" class="text-xs font-semibold text-slate-400 hover:text-red-500 transition">ログアウト</button>
+    <div id="friend-list-view" class="hidden flex-grow flex flex-col max-w-md mx-auto w-full bg-white shadow-xl border-x border-slate-200">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+            <div>
+                <h2 class="font-bold text-slate-800 text-lg">友達一覧</h2>
+                <span id="my-id-badge" class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold mt-1 inline-block"></span>
             </div>
+            <button onclick="logout()" class="text-xs font-semibold text-slate-400 hover:text-red-500 transition">ログアウト</button>
+        </div>
 
-            <div class="px-6 py-3 border-b border-slate-100 bg-white">
-                <div class="flex flex-col md:flex-row md:items-end gap-3">
-                    <div class="flex-1">
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">相手ユーザーID（recipientId）</label>
-                        <input type="number" id="recipientIdInput"
-                            class="w-full px-4 py-2.5 bg-slate-100 rounded-xl border-none focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-                            placeholder="例: 2" min="1">
-                    </div>
-                    <button onclick="loadHistory()"
-                        class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition active:scale-95">
-                        履歴を読み込む
-                    </button>
+        <div class="p-4 border-b border-slate-100 flex gap-2 bg-white">
+            <input type="number" id="new-friend-id" class="flex-grow px-4 py-2 bg-slate-100 rounded-xl border-none focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="追加したい相手のID" min="1">
+            <button onclick="addFriend()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition active:scale-95 shadow-sm">
+                追加
+            </button>
+        </div>
+
+        <div id="friend-list-container" class="flex-grow overflow-y-auto p-2"></div>
+    </div>
+
+    <div id="chat-view" class="hidden flex-grow flex flex-col max-w-md mx-auto w-full bg-slate-50 shadow-xl border-x border-slate-200 h-screen max-h-[100dvh]">
+        <div class="px-4 py-3 border-b border-slate-200 bg-white flex items-center gap-3 shadow-sm z-10">
+            <button onclick="backToFriendList()" class="text-slate-400 hover:text-blue-600 transition p-2 -ml-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 font-bold text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                    </svg>
                 </div>
-                <p class="text-[11px] text-slate-400 mt-2">
-                    送信前に相手のIDを指定してください。履歴はあなたと相手の1対1だけが表示されます。
-                </p>
-            </div>
-
-            <div id="chat-box" class="flex-grow overflow-y-auto p-6 space-y-4 bg-slate-50">
-            </div>
-
-            <div class="p-4 border-t border-slate-100 bg-white">
-                <div class="flex gap-2">
-                    <input type="text" id="messageInput" 
-                        onkeypress="if(event.key==='Enter') sendMessage()"
-                        class="flex-grow px-4 py-3 bg-slate-100 rounded-xl border-none focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" 
-                        placeholder="メッセージを入力...">
-                    <button onclick="sendMessage()" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl shadow-md shadow-blue-100 transition active:scale-95">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                        </svg>
-                    </button>
+                <div>
+                    <h2 id="chat-friend-name" class="font-bold text-slate-800 text-sm">相手の名前</h2>
                 </div>
+            </div>
+        </div>
+
+        <div id="chat-box" class="flex-grow overflow-y-auto p-4 space-y-4"></div>
+
+        <div class="p-3 border-t border-slate-200 bg-white">
+            <div class="flex gap-2">
+                <input type="text" id="messageInput" onkeypress="if(event.key==='Enter') sendMessage()" class="flex-grow px-4 py-2.5 bg-slate-100 rounded-full border-none focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="メッセージを入力...">
+                <button onclick="sendMessage()" class="bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-full shadow-md transition active:scale-95 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        const API_URL =
-            window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                ? 'http://localhost:3000'
-                : 'https://chat-api-9vbf.onrender.com';
+        const API_URL = 'http://localhost:3000';
         let socket;
         let accessToken = '';
         let myUserId = null;
         let isLoginMode = true;
+        let currentChatFriendId = null;
+        let friends = [];
 
         function parseJwtPayload(token) {
-            try {
-                const base64Url = token.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(
-                    atob(base64)
-                        .split('')
-                        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                        .join('')
-                );
-                return JSON.parse(jsonPayload);
-            } catch (e) {
-                return null;
-            }
+            try { return JSON.parse(decodeURIComponent(atob(token.split('.')[1]).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''))); } 
+            catch (e) { return null; }
         }
 
-        function getRecipientId() {
-            const raw = document.getElementById('recipientIdInput')?.value ?? '';
-            const recipientId = Number(raw);
-            if (!Number.isFinite(recipientId) || recipientId <= 0) return null;
-            return recipientId;
-        }
-
-        // エラー表示のユーティリティ
         function showError(message) {
             const errorEl = document.getElementById('auth-error');
             errorEl.innerText = message;
             errorEl.classList.remove('hidden');
         }
 
-        function hideError() {
-            document.getElementById('auth-error').classList.add('hidden');
-        }
-
-        // 新規追加：ロード中の状態を切り替える関数
-        function setLoading(isLoading) {
-            const button = document.getElementById('auth-button');
-            const spinner = document.getElementById('loading-spinner');
-            const buttonText = document.getElementById('auth-button-text');
-
-            if (isLoading) {
-                // ロード中の状態
-                button.disabled = true; // ボタンを押せなくする
-                button.classList.add('opacity-70', 'cursor-not-allowed'); // 少し透明にして押せない見た目にする
-                spinner.classList.remove('hidden'); // ぐるぐるを表示
-                buttonText.innerText = '処理中...';
-            } else {
-                // 元に戻す
-                button.disabled = false;
-                button.classList.remove('opacity-70', 'cursor-not-allowed');
-                spinner.classList.add('hidden');
-                buttonText.innerText = isLoginMode ? 'ログイン' : 'アカウント作成';
-            }
-        }
-
-        // モード切り替え（ログイン ↔ 新規登録）
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
-            hideError(); 
-
-            const title = document.getElementById('auth-title');
-            const subtitle = document.getElementById('auth-subtitle');
-            const nameField = document.getElementById('name-field');
-            const authButton = document.getElementById('auth-button');
-            const authButtonText = document.getElementById('auth-button-text'); // 変更
-            const toggleText = document.getElementById('toggle-text');
-            const toggleLink = document.getElementById('toggle-link');
-
-            if (isLoginMode) {
-                title.innerText = 'Welcome Back';
-                subtitle.innerText = 'ポートフォリオチャットへようこそ';
-                nameField.classList.add('hidden');
-                authButtonText.innerText = 'ログイン'; // 変更：spanの中身だけ書き換える
-                authButton.onclick = login;
-                toggleText.innerText = 'アカウントをお持ちでないですか？';
-                toggleLink.innerText = '新規登録';
-            } else {
-                title.innerText = 'Create Account';
-                subtitle.innerText = '新しくアカウントを作成します';
-                nameField.classList.remove('hidden');
-                authButtonText.innerText = 'アカウント作成'; // 変更：spanの中身だけ書き換える
-                authButton.onclick = register;
-                toggleText.innerText = '既にアカウントをお持ちですか？';
-                toggleLink.innerText = 'ログイン';
-            }
+            document.getElementById('auth-error').classList.add('hidden');
+            document.getElementById('auth-title').innerText = isLoginMode ? 'Welcome Back' : 'Create Account';
+            document.getElementById('auth-subtitle').innerText = isLoginMode ? 'チャットへようこそ' : '新しくアカウントを作成します';
+            document.getElementById('name-field').classList.toggle('hidden', isLoginMode);
+            document.getElementById('auth-button-text').innerText = isLoginMode ? 'ログイン' : 'アカウント作成';
+            document.getElementById('auth-button').onclick = isLoginMode ? login : register;
+            document.getElementById('toggle-text').innerText = isLoginMode ? 'アカウントをお持ちでないですか？' : '既にアカウントをお持ちですか？';
+            document.getElementById('toggle-link').innerText = isLoginMode ? '新規登録' : 'ログイン';
         }
 
-        // 1. 新規登録処理
         async function register() {
-            hideError();
             const name = document.getElementById('reg-name').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-
-            if (!name || !email || !password) {
-                return showError('すべての項目を入力してください');
-            }
-
-            setLoading(true); // 通信開始時にロード状態にする
-
+            if (!name || !email || !password) return showError('すべての項目を入力してください');
+            
             try {
                 const res = await fetch(`${API_URL}/users`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, email, password })
                 });
-
                 if (res.ok) {
                     alert('アカウントを作成しました！ログインしてください。');
                     toggleAuthMode();
                 } else {
                     const data = await res.json();
-                    showError(data.message || '登録に失敗しました。既に登録されている可能性があります。');
+                    showError(data.message || '登録に失敗しました');
                 }
-            } catch (e) {
-                showError('サーバーに接続できません');
-            } finally {
-                setLoading(false); // 成功しても失敗しても、通信が終わったらロード状態を解除する
-            }
+            } catch (e) { showError('サーバーに接続できません'); }
         }
 
-        // 2. ログイン処理
         async function login() {
-            hideError();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-
-            if (!email || !password) {
-                return showError('メールアドレスとパスワードを入力してください');
-            }
-
-            setLoading(true); // 通信開始時にロード状態にする
-
+            if (!email || !password) return showError('メールアドレスとパスワードを入力してください');
+            
             try {
                 const res = await fetch(`${API_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
-
                 const data = await res.json();
                 if (res.ok && data.access_token) {
                     accessToken = data.access_token;
-                    const payload = parseJwtPayload(accessToken);
-                    myUserId = payload?.sub ?? null;
-                    if (myUserId == null) {
-                        return showError('ログイン情報の解析に失敗しました（userIdが取得できません）');
-                    }
-                    showChat();
+                    myUserId = parseJwtPayload(accessToken)?.sub ?? null;
+                    if (!myUserId) return showError('ログイン情報の解析に失敗しました');
+                    
+                    document.getElementById('my-id-badge').innerText = `あなたのID: ${myUserId}`;
+                    loadFriendsFromStorage();
+                    initSocket();
+                    showView('friend-list-view');
                 } else {
-                    showError(data.message || 'メールアドレスまたはパスワードが違います');
+                    showError(data.message || 'ログインに失敗しました');
+                }
+            } catch (e) { showError('サーバーに接続できません'); }
+        }
+
+        function logout() { location.reload(); }
+
+        function showView(viewId) {
+            ['auth-view', 'friend-list-view', 'chat-view'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        function loadFriendsFromStorage() {
+            const stored = localStorage.getItem(`friends_${myUserId}`);
+            if (stored) friends = JSON.parse(stored);
+            renderFriendList();
+        }
+
+        function saveFriendsToStorage() {
+            localStorage.setItem(`friends_${myUserId}`, JSON.stringify(friends));
+        }
+
+        async function addFriend() {
+            const friendId = parseInt(document.getElementById('new-friend-id').value);
+            if (!friendId || isNaN(friendId)) return alert('正しいIDを入力してください');
+            if (friendId === myUserId) return alert('自分自身は追加できません');
+            if (friends.some(f => f.id === friendId)) return alert('既にリストに存在します');
+
+            try {
+                const res = await fetch(`${API_URL}/users/${friendId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                if (res.ok) {
+                    const userData = await res.json();
+                    if (userData && userData.name) {
+                        friends.push({ id: friendId, name: userData.name });
+                        saveFriendsToStorage();
+                        document.getElementById('new-friend-id').value = '';
+                        renderFriendList();
+                    } else {
+                        alert('入力されたIDのユーザーは見つかりませんでした');
+                    }
+                } else {
+                    alert('ユーザーが見つからないか、IDが間違っています');
                 }
             } catch (e) {
-                showError('サーバーに接続できません');
-            } finally {
-                setLoading(false); // 成功しても失敗しても、通信が終わったらロード状態を解除する
+                alert('サーバーとの通信に失敗しました');
             }
         }
 
-        // 3. チャット画面表示 & Socket接続
-        function showChat() {
-            if (socket) return; 
-            document.getElementById('auth-view').classList.add('hidden');
-            document.getElementById('chat-view').classList.remove('hidden');
+        function renderFriendList() {
+            const container = document.getElementById('friend-list-container');
+            container.innerHTML = '';
 
+            if (friends.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 text-sm mt-10">友達がまだいません。<br>上の入力欄からIDで追加してください。</p>`;
+                return;
+            }
+
+            friends.forEach(friend => {
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-4 p-3 hover:bg-slate-50 cursor-pointer rounded-xl transition border-b border-slate-100 last:border-0";
+                div.onclick = () => openChatRoom(friend.id, friend.name);
+                div.innerHTML = `
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold flex-shrink-0 uppercase">
+                        ${friend.name.charAt(0)}
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="font-bold text-slate-800">${friend.name}</h3>
+                        <p class="text-xs text-slate-400">ID: ${friend.id}</p>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function openChatRoom(friendId, friendName) {
+            currentChatFriendId = friendId;
+            document.getElementById('chat-friend-name').innerText = friendName;
+            document.getElementById('chat-box').innerHTML = ''; 
+            showView('chat-view');
+            socket.emit('getHistory', { token: accessToken, targetId: friendId });
+        }
+
+        function backToFriendList() {
+            currentChatFriendId = null;
+            showView('friend-list-view');
+        }
+
+        function initSocket() {
+            if (socket) return;
             socket = io(API_URL);
-
-            // 1対1: サーバーに「自分専用ルーム」へ参加を通知
             socket.emit('join', { userId: myUserId });
 
             socket.on('loadHistory', (messages) => {
@@ -295,63 +283,56 @@
                 messages.forEach(addMessageToBox);
             });
 
-            socket.on('receiveMessage', addMessageToBox);
+            socket.on('receiveMessage', (msg) => {
+                const senderId = msg.senderId ?? msg.userId;
+                const recipientId = msg.recipientId;
+                
+                if (
+                    (senderId === currentChatFriendId && recipientId === myUserId) || 
+                    (senderId === myUserId && recipientId === currentChatFriendId)
+                ) {
+                    addMessageToBox(msg);
+                }
+            });
+
             socket.on('error', (msg) => alert(msg));
         }
 
-        function loadHistory() {
-            if (!socket || !accessToken) return;
-            const recipientId = getRecipientId();
-            if (!recipientId) return alert('相手ユーザーID（recipientId）を入力してください');
-            socket.emit('getHistory', { token: accessToken, targetId: recipientId });
-        }
-
-        // 4. メッセージ表示処理
         function addMessageToBox(msg) {
             const box = document.getElementById('chat-box');
             const wrapper = document.createElement('div');
             const senderId = msg.senderId ?? msg.userId;
             const isMine = myUserId != null && senderId === myUserId;
-            wrapper.className = "flex flex-col mb-2 " + (isMine ? "items-end" : "items-start");
+            
+            wrapper.className = "flex flex-col mb-4 " + (isMine ? "items-end" : "items-start");
             
             const div = document.createElement('div');
-            div.className =
-                "max-w-[85%] p-3 rounded-2xl text-sm shadow-sm border " +
-                (isMine
-                    ? "bg-blue-600 text-white rounded-tr-none border-blue-600"
-                    : "bg-white text-slate-700 rounded-tl-none border-slate-200");
+            div.className = "max-w-[80%] p-3 text-sm shadow-sm " + 
+                (isMine ? "bg-blue-600 text-white rounded-2xl rounded-tr-sm" : "bg-white text-slate-700 rounded-2xl rounded-tl-sm border border-slate-200");
             
-            const nameLabel = document.createElement('span');
-            nameLabel.className =
-                "text-[10px] font-bold mb-1 uppercase tracking-wider block " +
-                (isMine ? "text-blue-100" : "text-blue-500");
-            nameLabel.textContent = msg.sender?.name || msg.user?.name || 'Unknown User';
+            if (!isMine) {
+                const nameLabel = document.createElement('span');
+                nameLabel.className = "text-[10px] font-bold mb-1 block text-slate-400";
+                nameLabel.textContent = msg.sender?.name || 'Unknown';
+                div.prepend(nameLabel);
+            }
 
-            div.prepend(nameLabel);
-            div.insertAdjacentHTML('beforeend', `<p class="leading-relaxed">${msg.content}</p>`);
+            div.insertAdjacentHTML('beforeend', `<p class="leading-relaxed break-words">${msg.content}</p>`);
             wrapper.appendChild(div);
             box.appendChild(wrapper);
-            
             box.scrollTop = box.scrollHeight;
         }
 
-        // 5. メッセージ送信
         function sendMessage() {
             const input = document.getElementById('messageInput');
-            if (!input.value.trim() || !accessToken) return;
-            const recipientId = getRecipientId();
-            if (!recipientId) return alert('相手ユーザーID（recipientId）を入力してください');
+            if (!input.value.trim() || !accessToken || !currentChatFriendId) return;
 
             socket.emit('sendMessage', {
                 token: accessToken,
                 content: input.value,
-                recipientId: recipientId
+                recipientId: currentChatFriendId
             });
             input.value = '';
-        }
-
-        function logout() {
-            location.reload();
         }
     </script>
 </body>
