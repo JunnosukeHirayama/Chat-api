@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { Server, Socket } from 'socket.io';
-import { JwtService } from '@nestjs/jwt'; // 追加
+import { JwtService } from '@nestjs/jwt'; 
 
 @WebSocketGateway({ cors: true })
 export class ChatGateway implements OnGatewayConnection {
@@ -17,7 +17,7 @@ export class ChatGateway implements OnGatewayConnection {
 
   constructor(
     private readonly chatService: ChatService,
-    private readonly jwtService: JwtService, // 追加
+    private readonly jwtService: JwtService, 
   ) {}
 
   async handleConnection(client: Socket) {
@@ -32,11 +32,11 @@ export class ChatGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      // 1. クライアントから送られてきたトークンを取り出す
-      // 送信データに { token: '...', content: '...' } という形を期待します
+      // クライアントから送られてきたトークンを取り出す
+      // 送信データに { token: '...', content: '...' } という形を期待
       const { token, content } = body;
 
-      // 2. トークンを解析してユーザー情報を取得
+      // トークンを解析してユーザー情報を取得
       const payload = await this.jwtService.verifyAsync(token, {
         secret: 'secretKey',
       });
@@ -44,7 +44,7 @@ export class ChatGateway implements OnGatewayConnection {
 
       if (!content || !content.trim()) return;
 
-      // 3. 本物のユーザーIDでDBに保存
+      // 本物のユーザーIDでDBに保存
       const savedMessage = await this.chatService.createMessage(content.trim(), userId);
 
       if (savedMessage) {
