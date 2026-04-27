@@ -21,29 +21,29 @@ export class ChatGateway implements OnGatewayConnection {
     private readonly jwtService: JwtService, 
   ) {}
 
-  // 1. 接続時の処理（全体チャットの履歴送信は不要になったのでスッキリさせます）
+  // 接続時の処理
   async handleConnection(client: Socket) {
     console.log(`接続試行: ${client.id}`);
   }
 
-  // 2. 自分の専用ルームに入る処理
+  // 自分の専用ルームに入る処理
   @SubscribeMessage('join')
   handleJoin(@MessageBody() data: { userId: number }, @ConnectedSocket() client: Socket) {
     client.join(data.userId.toString());
     console.log(`User ${data.userId} joined their private room`);
   }
 
-  // 3. メッセージ送信処理（1対1のロジックに統一）
+  // メッセージ送信処理（1対1のロジックに統一）
   @SubscribeMessage('sendMessage')
   async handleMessage(
-    @MessageBody() body: SendMessageDto, // anyではなくDTOで安全に受け取る
+    @MessageBody() body: SendMessageDto, 
     @ConnectedSocket() client: Socket,
   ) {
     try {
       const { token, content, recipientId } = body; 
       
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET ?? 'secretKey',
+        secret: process.env.JWT_SECRET,
       });
       const senderId = payload.sub;
 
@@ -65,7 +65,7 @@ export class ChatGateway implements OnGatewayConnection {
     }
   }
 
-  // 4. 過去の会話履歴を取得する処理
+  // 過去の会話履歴を取得する処理
   @SubscribeMessage('getHistory')
   async handleGetHistory(
     @MessageBody() data: { token: string; targetId: number },
@@ -73,7 +73,7 @@ export class ChatGateway implements OnGatewayConnection {
   ) {
     try {
       const payload = await this.jwtService.verifyAsync(data.token, {
-        secret: process.env.JWT_SECRET ?? 'secretKey',
+      secret: process.env.JWT_SECRET,
       });
       const userId = payload.sub;
 
