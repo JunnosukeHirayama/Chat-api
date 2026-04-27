@@ -11,7 +11,9 @@
 
 ## Visuals
 
-<img src="C:\Users\nosuk\Documents\Internship\portfolio-api\Images\214241.png" width="600">
+<img src="Images\214241.png" width="500">   <img src="Images\214300.png" width="500">
+<img src="Images\214323.png" width="500">
+<img src="Images\214337.png" width="500">
 
 ## Overview
 
@@ -74,8 +76,3 @@
 
 1.  `index.html` 内の `API_URL` を環境に合わせて設定。
 2.  ブラウザで `index.html` を開き、複数のアカウントを作成して1対1チャットをテスト。
-
-## 未来の展望 (Roadmap)
-- [ ] データベースへの「友達関係」テーブルの実装（永続化）。
-- [ ] 画像・ファイルの添付機能。
-- [ ] Socket.ioによるリアルタイムな「既読」・「オンライン状態」の表示機能。
