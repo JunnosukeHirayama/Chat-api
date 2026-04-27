@@ -51,7 +51,7 @@ export class UsersService {
     return user;
   }
 
-  // ログイン用：メールアドレスで検索（パスワード比較が必要なのでselectは指定しない）
+  // ログイン用：メールアドレスで検索
   async findOneByEmail(email: string) {
     return this.prisma.user.findUnique({
       where: { email },
