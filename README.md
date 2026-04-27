@@ -4,8 +4,8 @@
 
 ## 🌐 Live Demo
 
-こちらから実際にアプリを体験いただけます：
-**[NexChat をブラウザで開く](あなたのRenderのURL)**
+こちらから実際にアプリを体験可能です：
+**[NexChat をブラウザで開く](https://junnosukehirayama.github.io/Chat-api/)**
 
 > **Note:** Renderの無料プランを利用しているため、最初のアクセス時にサーバーの起動（スリープ解除）に30秒〜1分ほど時間がかかる場合があります。
 
