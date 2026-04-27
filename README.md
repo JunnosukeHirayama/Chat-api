@@ -11,7 +11,7 @@
 
 ## Visuals
 
-<img src="https://via.placeholder.com/600x400?text=NexChat+UI+Demo" width="600">
+<img src="C:\Users\nosuk\Documents\Internship\portfolio-api\Images\214241.png" width="600">
 
 ## Overview
 
