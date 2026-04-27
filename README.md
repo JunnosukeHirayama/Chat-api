@@ -11,7 +11,9 @@
 
 ## Visuals
 
-<img src="C:\Users\nosuk\Documents\Internship\portfolio-api\Images\214241.png" width="600">
+<img src="Images\214241.png" width="500">   <img src="Images\214300.png" width="500">
+<img src="Images\214323.png" width="500">
+<img src="Images\214337.png" width="500">
 
 ## Overview
 
