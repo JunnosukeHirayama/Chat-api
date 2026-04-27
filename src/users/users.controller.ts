@@ -22,7 +22,7 @@ export class UsersController {
   // 特定ユーザー取得： GET /users/:id （友達追加時に使用）
   @Get(':id')
   findOne(@Param('id') id: string) {
-    // URLのパラメーターは文字列として受け取るため、+ をつけて数値(number)に変換します
+    // URLのパラメーターは文字列として受け取るため、+ をつけて数値(number)に変換
     return this.usersService.findOne(+id);
   }
 
