@@ -12,6 +12,6 @@ export class AppController {
 
   @Get('hello')
   getMathGraduateHello(): string {
-    return '皆さんこんにちは、数学の美しさを追求する大学院生です。今日も楽しく数式と向き合いましょう！';
+    return '皆さんこんにちは';
   }
 }

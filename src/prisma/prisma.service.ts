@@ -10,13 +10,13 @@ dotenv.config();
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor() {
-    // 1. PostgreSQLの接続プールを作成
+    // PostgreSQLの接続プールを作成
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
     
-    // 2. Prisma用のPGアダプターを作成
+    // Prisma用のPGアダプターを作成
     const adapter = new PrismaPg(pool);
 
-    // 3. アダプターをPrismaClientのコンストラクタに渡す（これがエラーが要求していた正解です）
+    // アダプターをPrismaClientのコンストラクタに渡す
     super({ adapter });
   }
 

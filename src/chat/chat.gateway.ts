@@ -9,6 +9,7 @@ import {
 import { ChatService } from './chat.service';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt'; 
+import { SendMessageDto } from './dto/send-message.dto';
 
 @WebSocketGateway({ cors: true })
 export class ChatGateway implements OnGatewayConnection {
@@ -28,7 +29,7 @@ export class ChatGateway implements OnGatewayConnection {
 
   @SubscribeMessage('sendMessage')
   async handleMessage(
-    @MessageBody() body: any,
+    @MessageBody() body: SendMessageDto,
     @ConnectedSocket() client: Socket,
   ) {
     try {
@@ -38,7 +39,7 @@ export class ChatGateway implements OnGatewayConnection {
 
       // トークンを解析してユーザー情報を取得
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: 'secretKey',
+        secret: process.env.JWT_SECRET,
       });
       const userId = payload.sub; // 設定したユーザーID
 

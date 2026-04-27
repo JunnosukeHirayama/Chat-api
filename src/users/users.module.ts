@@ -5,6 +5,6 @@ import { UsersController } from './users.controller';
 @Module({
   controllers: [UsersController],
   providers: [UsersService],
-  exports: [UsersService], // ← この1行を必ず追加してください！
+  exports: [UsersService], 
 })
 export class UsersModule {}
