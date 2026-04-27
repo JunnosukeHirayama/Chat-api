@@ -9,7 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
     UsersModule,
     JwtModule.register({
       global: true,
-      secret: 'secretKey', // 本来は環境変数などで隠す超複雑な文字列
+      secret: 'secretKey', // 本来は環境変数などで隠すが今回はテストなので
       signOptions: { expiresIn: '1d' }, // 1日で有効期限切れになる設定
     }),
   ],
