@@ -5,24 +5,34 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ChatService {
   constructor(private prisma: PrismaService) {}
 
-  // 第2引数に userId: number をしっかり追加します
-  async createMessage(content: string, userId: number) {
+  // 1. 新しいメッセージを保存する（送信者と受信者を記録）
+  async createMessage(content: string, senderId: number, recipientId: number) {
     return this.prisma.message.create({
       data: {
         content: content,
-        userId: userId, // 送信者のIDで保存
+        senderId: senderId,
+        recipientId: recipientId,
       },
       include: {
-        user: { select: { name: true } }
+        // user ではなく sender の名前を取得するように変更！
+        sender: { select: { name: true } } 
       }
     });
   }
 
-  async getAllMessages() {
+  // 2. 特定の2人の間の会話履歴だけを取得する
+  async getConversation(userId: number, targetId: number) {
     return this.prisma.message.findMany({
+      where: {
+        // Aさん→Bさん、または Bさん→Aさん のメッセージを探す
+        OR: [
+          { senderId: userId, recipientId: targetId },
+          { senderId: targetId, recipientId: userId },
+        ],
+      },
       orderBy: { createdAt: 'asc' },
       include: {
-        user: { select: { name: true } }
+        sender: { select: { name: true } }
       }
     });
   }

@@ -72,6 +72,24 @@
                 <button onclick="logout()" class="text-xs font-semibold text-slate-400 hover:text-red-500 transition">ログアウト</button>
             </div>
 
+            <div class="px-6 py-3 border-b border-slate-100 bg-white">
+                <div class="flex flex-col md:flex-row md:items-end gap-3">
+                    <div class="flex-1">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">相手ユーザーID（recipientId）</label>
+                        <input type="number" id="recipientIdInput"
+                            class="w-full px-4 py-2.5 bg-slate-100 rounded-xl border-none focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                            placeholder="例: 2" min="1">
+                    </div>
+                    <button onclick="loadHistory()"
+                        class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition active:scale-95">
+                        履歴を読み込む
+                    </button>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-2">
+                    送信前に相手のIDを指定してください。履歴はあなたと相手の1対1だけが表示されます。
+                </p>
+            </div>
+
             <div id="chat-box" class="flex-grow overflow-y-auto p-6 space-y-4 bg-slate-50">
             </div>
 
@@ -92,10 +110,37 @@
     </div>
 
     <script>
-        const API_URL = 'https://chat-api-9vbf.onrender.com';
+        const API_URL =
+            window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:3000'
+                : 'https://chat-api-9vbf.onrender.com';
         let socket;
         let accessToken = '';
+        let myUserId = null;
         let isLoginMode = true;
+
+        function parseJwtPayload(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(
+                    atob(base64)
+                        .split('')
+                        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                        .join('')
+                );
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function getRecipientId() {
+            const raw = document.getElementById('recipientIdInput')?.value ?? '';
+            const recipientId = Number(raw);
+            if (!Number.isFinite(recipientId) || recipientId <= 0) return null;
+            return recipientId;
+        }
 
         // エラー表示のユーティリティ
         function showError(message) {
@@ -217,6 +262,11 @@
                 const data = await res.json();
                 if (res.ok && data.access_token) {
                     accessToken = data.access_token;
+                    const payload = parseJwtPayload(accessToken);
+                    myUserId = payload?.sub ?? null;
+                    if (myUserId == null) {
+                        return showError('ログイン情報の解析に失敗しました（userIdが取得できません）');
+                    }
                     showChat();
                 } else {
                     showError(data.message || 'メールアドレスまたはパスワードが違います');
@@ -236,7 +286,10 @@
 
             socket = io(API_URL);
 
-            socket.on('loadMessages', (messages) => {
+            // 1対1: サーバーに「自分専用ルーム」へ参加を通知
+            socket.emit('join', { userId: myUserId });
+
+            socket.on('loadHistory', (messages) => {
                 const box = document.getElementById('chat-box');
                 box.innerHTML = '';
                 messages.forEach(addMessageToBox);
@@ -246,18 +299,33 @@
             socket.on('error', (msg) => alert(msg));
         }
 
+        function loadHistory() {
+            if (!socket || !accessToken) return;
+            const recipientId = getRecipientId();
+            if (!recipientId) return alert('相手ユーザーID（recipientId）を入力してください');
+            socket.emit('getHistory', { token: accessToken, targetId: recipientId });
+        }
+
         // 4. メッセージ表示処理
         function addMessageToBox(msg) {
             const box = document.getElementById('chat-box');
             const wrapper = document.createElement('div');
-            wrapper.className = "flex flex-col mb-2 items-start";
+            const senderId = msg.senderId ?? msg.userId;
+            const isMine = myUserId != null && senderId === myUserId;
+            wrapper.className = "flex flex-col mb-2 " + (isMine ? "items-end" : "items-start");
             
             const div = document.createElement('div');
-            div.className = "max-w-[85%] p-3 rounded-2xl text-sm shadow-sm bg-white text-slate-700 rounded-tl-none border border-slate-200";
+            div.className =
+                "max-w-[85%] p-3 rounded-2xl text-sm shadow-sm border " +
+                (isMine
+                    ? "bg-blue-600 text-white rounded-tr-none border-blue-600"
+                    : "bg-white text-slate-700 rounded-tl-none border-slate-200");
             
             const nameLabel = document.createElement('span');
-            nameLabel.className = "text-[10px] font-bold text-blue-500 mb-1 uppercase tracking-wider block";
-            nameLabel.textContent = msg.user?.name || 'Unknown User';
+            nameLabel.className =
+                "text-[10px] font-bold mb-1 uppercase tracking-wider block " +
+                (isMine ? "text-blue-100" : "text-blue-500");
+            nameLabel.textContent = msg.sender?.name || msg.user?.name || 'Unknown User';
 
             div.prepend(nameLabel);
             div.insertAdjacentHTML('beforeend', `<p class="leading-relaxed">${msg.content}</p>`);
@@ -271,10 +339,13 @@
         function sendMessage() {
             const input = document.getElementById('messageInput');
             if (!input.value.trim() || !accessToken) return;
+            const recipientId = getRecipientId();
+            if (!recipientId) return alert('相手ユーザーID（recipientId）を入力してください');
 
             socket.emit('sendMessage', {
                 token: accessToken,
-                content: input.value
+                content: input.value,
+                recipientId: recipientId
             });
             input.value = '';
         }

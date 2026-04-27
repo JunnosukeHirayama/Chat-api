@@ -1,12 +1,15 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class SendMessageDto {
   @IsString()
-  @MinLength(1)
-  content: string;
+  @IsNotEmpty()
+  token: string;
 
   @IsString()
-  @MinLength(1)
-  token: string;
-}
+  @IsNotEmpty()
+  content: string;
 
+  @IsNumber()
+  @IsNotEmpty()
+  recipientId: number;
+}

@@ -16,15 +16,20 @@ model User {
   email    String   @unique                       // 重複禁止のメールアドレス
   password String                                 // パスワード
   name     String?                               // 名前（?は空でもOKの意味）
-  messages Message[]
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  content   String   // メッセージの本文
-  createdAt DateTime @default(now()) // 送信された日時（自動保存）
+  id          Int      @id @default(autoincrement())
+  content     String
+  createdAt   DateTime @default(now())
   
-  // 誰が送信したメッセージかを記録するための紐付け設定
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  // 送信者
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+  senderId    Int
+  
+  // 受信者（追加）
+  recipient   User     @relation("ReceivedMessages", fields: [recipientId], references: [id])
+  recipientId Int
 }
