@@ -27,9 +27,9 @@
 * **Real-time Communication:** Socket.io (WebSockets)
 * **Database & BaaS:** Supabase (PostgreSQL)
 * **ORM:** Prisma
-* **Authentication:** JWT (JSON Web Token)
-* **Frontend:** HTML5 / Tailwind CSS / Vanilla JavaScript
-* **Development Tools:** Cursor (AI-integrated IDE) / Postman
+* **Authentication:** JWT
+* **Frontend:** HTML5 / Tailwind CSS / JavaScript
+* **Development Tools:** Cursor
 
 ## Key Features & Technical Highlights
 
